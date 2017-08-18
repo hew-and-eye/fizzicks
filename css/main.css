@@ -12,6 +12,7 @@ body {
   left: 50px;
   position: fixed;
   top: calc(100vh - 68px);
+  outline:none;
 }
 
 [fz-name=player] {

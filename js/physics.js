@@ -81,4 +81,5 @@ window.onload = () => {
   objects++;
   setupInterval();
   setupKeydownEvent();
+  document.getElementById("object-0").focus();
 };
