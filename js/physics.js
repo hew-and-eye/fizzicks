@@ -48,7 +48,7 @@ let setupInterval = () => {
                 updateCollMap(i, oldX, oldY);
             }
             else if (!checkCollision(i, xArray[i] + vxArray[i], yArray[i])) {
-                console.log("1st collision type");
+                //console.log("1st collision type");
                 if (vyArray[i] > 0) jumpInProgress = false;
                 vyArray[i] = 0;
                 xArray[i] += vxArray[i];
@@ -56,14 +56,14 @@ let setupInterval = () => {
                 updateCollMap(i, oldX, oldY);
             }
             else if (!checkCollision(i, xArray[i], yArray[i] + vyArray[i])) {
-                console.log("2nd collision type");
+                //console.log("2nd collision type");
                 vxArray[i] = 0;
                 //xArray[i] += vxArray[i];
                 yArray[i] += vyArray[i];
                 updateCollMap(i, oldX, oldY);
             }
             else {
-                console.log("3rd collision type");
+                //console.log("3rd collision type");
                 vyArray[i] = 0;
                 jumpInProgress = false;
             }
@@ -76,8 +76,9 @@ let setupInterval = () => {
             } else {
                 vyArray[i] += 0.4;
             }
-            document.getElementById(`object-${i}`).style.left = `${xArray[i]}px`;
-            document.getElementById(`object-${i}`).style.top = `${yArray[i]}px`;
+            console.log("updating style...");
+            document.getElementById(`object-${i}`).style.left = `${xArray[i]-5}px`;
+            document.getElementById(`object-${i}`).style.top = `${yArray[i]-5}px`;
         }
         //if (yArray[0] >= window.innerHeight - ySize[0]) jumpInProgress = false;
     }, 5);
@@ -97,17 +98,22 @@ let setupCollMap = () => {
     for (i = 0; i < objects; i++) {
         collMap[Math.floor(xArray[i] / 10)][Math.floor(yArray[i] / 10)] = i;
     }
-    console.log("collMap info: " + collMap[Math.floor(xArray[0] / 10)][Math.floor(yArray[0] / 10)]);
+    //console.log("collMap info: " + collMap[Math.floor(xArray[0] / 10)][Math.floor(yArray[0] / 10)]);
 }
 
 let checkCollision = (objectIndex, newX, newY) => {
     //console.log("x: " + newX + "\ny: " + newY);
     //return false;
+    //for (i = newX; i < newX + xSize[objectIndex]; i++)
+    //    for (j = newY; j < newY + ySize[objectIndex]; j++) {
+    //        if (collMap[Math.floor(i / 10)][Math.floor(j / 10)] != -1
+    //            && collMap[Math.floor(i / 10)][Math.floor(j / 10)] != objectIndex) return false;
+    //    }
     if (collMap[Math.floor(newX / 10)][Math.floor(newY / 10)] == -1) return false;
     if (collMap[Math.floor(newX / 10)][Math.floor(newY / 10)] == objectIndex) return false;
     //if (collMap[Math.floor(newX / 10)][Math.floor(newY / 10)] === null) return false;
     //if (collMap[Math.floor(newX / 10)][Math.floor(newY / 10)] == undefined) return false;
-    else console.log("collided with: " + collMap[Math.floor(newX / 10)][Math.floor(newY / 10)]);
+    //console.log("collided with: " + collMap[Math.floor(newX / 10)][Math.floor(newY / 10)]);
     return true;
 }
 
@@ -125,8 +131,15 @@ window.onload = () => {
     yArray.push(window.innerHeight - 200);
     vxArray.push(0);
     vyArray.push(0);
-    xSize.push(10);
-    ySize.push(10);
+    xSize.push(25);
+    ySize.push(68);
+    objects++;
+    xArray.push(100);
+    yArray.push(window.innerHeight - 200);
+    vxArray.push(0);
+    vyArray.push(0);
+    xSize.push(25);
+    ySize.push(68);
     objects++;
     setupInterval();
     setupKeydownEvent();
