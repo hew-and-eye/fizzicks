@@ -1,18 +1,20 @@
 <!DOCTYPE html>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-<script src="Javascript/Module/physApp.js"></script>
-<script src="Javascript\Controller\physController.js"></script>
-<html ng-app="physApp">
-<body ng-controller="physController" ng-keydown="handleKeys($event, true)" ng-keyup="handleKeys($event, false)">
-<div>
-    {{xArray[0]}}
-    {{vxArray[0]}}
-    {{vyArray[0]}}
-    jumpInProgress: {{jumpInProgress}}
-</div>
-<div style="background-color:aqua; position:fixed; 
-            width:{{xSize[0]}}px; height:{{ySize[0]}}px;
-            left:{{xArray[0]}}px; top:{{yArray[0]}}px">
+<html>
+
+<head>
+    <title>Fizzicks</title>
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+</head>
+
+<body>
+    <div id="frame" tabindex="1">
+        <div id="object-0" fz-name="player">
+            <span id="head">o</span>
+            <span id="body">/|\</span>
+            <span id="legs">/ \</span>
         </div>
+    </div>
+    <script src="js/physics.js"></script>
 </body>
+
 </html>
