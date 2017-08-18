@@ -1,85 +1,135 @@
+let mapSizeX = window.innerWidth;
+let mapSizeY = window.innerHeight;
 let xArray = [], yArray = [];
 let vxArray = [], vyArray = [];
 let xSize = [], ySize = [];
 let objects = 0;
 let wDown = false, aDown = false, dDown = false, jumpInProgress = false;
+let collMap = [[], []];//new Array(Math.floor(mapSizeX / 10));
 
 let setupKeydownEvent = () => {
-  let keyHandler = (event, keyDown) => {
-    console.log(event.keyCode); // 87 = w, 65 = a, 68 = d
-    switch (event.keyCode) {
-      case 87:
-        wDown = keyDown;
-        if (!jumpInProgress) {
-          jumpInProgress = true;
-          vyArray[0] = -15;
+    let keyHandler = (event, keyDown) => {
+        console.log(event.keyCode); // 87 = w, 65 = a, 68 = d
+        switch (event.keyCode) {
+            case 87:
+                wDown = keyDown;
+                if (!jumpInProgress) {
+                    jumpInProgress = true;
+                    vyArray[0] = -15;
+                }
+                break;
+            case 65:
+                aDown = keyDown;
+                break;
+            case 68:
+                dDown = keyDown;
+                break;
         }
-        break;
-      case 65:
-        aDown = keyDown;
-        break;
-      case 68:
-        dDown = keyDown;
-        break;
-    }
-  };
-  document.getElementById('frame').addEventListener('keydown', (event) => {
-    keyHandler(event, true);
-  });
-  document.getElementById('frame').addEventListener('keyup', (event) => {
-    keyHandler(event, false);
-  });
+    };
+    document.getElementById('frame').addEventListener('keydown', (event) => {
+        keyHandler(event, true);
+    });
+    document.getElementById('frame').addEventListener('keyup', (event) => {
+        keyHandler(event, false);
+    });
 };
 
 let setupInterval = () => {
-  setInterval(() => {
-    if (aDown) vxArray[0] = -8;
-    if (dDown) vxArray[0] = 8;
-    for (i = 0; i < objects; i++) {
-      // update the position using the velocity
-      xArray[i] += vxArray[i];
-      yArray[i] += vyArray[i];
+    setInterval(() => {
+        if (aDown) vxArray[0] = -5;
+        if (dDown) vxArray[0] = 5;
+        for (i = 0; i < objects; i++) {
+            let oldX = xArray[i];
+            let oldY = yArray[i];
+            // update the position using the velocity
+            if (!checkCollision(i, xArray[i] + vxArray[i], yArray[i] + vyArray[i])) {
+                xArray[i] += vxArray[i];
+                yArray[i] += vyArray[i];
+                updateCollMap(i, oldX, oldY);
+            }
+            else if (!checkCollision(i, xArray[i] + vxArray[i], yArray[i])) {
+                console.log("1st collision type");
+                if (vyArray[i] > 0) jumpInProgress = false;
+                vyArray[i] = 0;
+                xArray[i] += vxArray[i];
+                //yArray[i] += vyArray[i];
+                updateCollMap(i, oldX, oldY);
+            }
+            else if (!checkCollision(i, xArray[i], yArray[i] + vyArray[i])) {
+                console.log("2nd collision type");
+                vxArray[i] = 0;
+                //xArray[i] += vxArray[i];
+                yArray[i] += vyArray[i];
+                updateCollMap(i, oldX, oldY);
+            }
+            else {
+                console.log("3rd collision type");
+                vyArray[i] = 0;
+                jumpInProgress = false;
+            }
+            //handle acceleration
+            vxArray[i] = vxArray[i] - 0.7 * vxArray[i];
+            if (vxArray[i] < 0.01) vxArray[i] = 0;
 
-      // check for collisions with boundaries (check for collisions with other objects eventually)
-      if (xArray[i] < 0) {
-        xArray[i] = 0;
-        vxArray[i] = 0;
-      }
-      if (xArray[i] > window.innerWidth - xSize[i]) {
-        xArray[i] = window.innerWidth - xSize[i];
-        vxArray[i] = 0;
-      }
-
-      if (yArray[i] < 0) yArray[i] = 0;
-      if (yArray[i] > window.innerHeight - ySize[i]) {
-        yArray[i] = window.innerHeight - ySize[i];
-        vyArray[i] = 0;
-      }
-      //handle acceleration
-      vxArray[i] = vxArray[i] - 0.7 * vxArray[i];
-      if (vxArray[i] < 0.01) vxArray[i] = 0;
-
-      if (i == 0 && wDown) {
-        vyArray[i] += 0.3;
-      } else {
-        vyArray[i] += 1;
-      }
-      document.getElementById(`object-${i}`).style.left = `${xArray[i]}px`;
-      document.getElementById(`object-${i}`).style.top = `${yArray[i]}px`;
+            if (i == 0 && wDown) {
+                vyArray[i] += 0.2;
+            } else {
+                vyArray[i] += 0.4;
+            }
+            document.getElementById(`object-${i}`).style.left = `${xArray[i]}px`;
+            document.getElementById(`object-${i}`).style.top = `${yArray[i]}px`;
+        }
+        //if (yArray[0] >= window.innerHeight - ySize[0]) jumpInProgress = false;
+    }, 5);
+}
+let setupCollMap = () => {
+    for (i = 0; i < Math.floor(mapSizeX / 10); i++) {
+        collMap.push([-1]);
+        for (j = 0; j < Math.floor(mapSizeY / 10); j++) {
+            collMap[i].push([-1]);
+            collMap[i][j] = -1;
+            if (i > Math.floor(mapSizeX / 10) - 5
+                || j > Math.floor(mapSizeY / 10) - 5
+                || i == 0 || j == 0)
+                collMap[i][j] = objects + 1;
+        }
     }
-    if (yArray[0] >= window.innerHeight - ySize[0]) jumpInProgress = false;
-  }, 5);
+    for (i = 0; i < objects; i++) {
+        collMap[Math.floor(xArray[i] / 10)][Math.floor(yArray[i] / 10)] = i;
+    }
+    console.log("collMap info: " + collMap[Math.floor(xArray[0] / 10)][Math.floor(yArray[0] / 10)]);
+}
+
+let checkCollision = (objectIndex, newX, newY) => {
+    //console.log("x: " + newX + "\ny: " + newY);
+    //return false;
+    if (collMap[Math.floor(newX / 10)][Math.floor(newY / 10)] == -1) return false;
+    if (collMap[Math.floor(newX / 10)][Math.floor(newY / 10)] == objectIndex) return false;
+    //if (collMap[Math.floor(newX / 10)][Math.floor(newY / 10)] === null) return false;
+    //if (collMap[Math.floor(newX / 10)][Math.floor(newY / 10)] == undefined) return false;
+    else console.log("collided with: " + collMap[Math.floor(newX / 10)][Math.floor(newY / 10)]);
+    return true;
+}
+
+let updateCollMap = (objectIndex, oldX, oldY) => {
+    if (collMap[Math.floor(oldX / 10)][Math.floor(oldY / 10)] == objectIndex) {
+        collMap[Math.floor(oldX / 10)][Math.floor(oldY / 10)] = -1;
+        let newX = xArray[objectIndex];
+        let newY = yArray[objectIndex];
+        collMap[Math.floor(newX / 10)][Math.floor(newY / 10)] = objectIndex;
+    }
 }
 
 window.onload = () => {
-  xArray.push(50);
-  yArray.push(window.innerHeight - 68);
-  vxArray.push(0);
-  vyArray.push(0);
-  xSize.push(25);
-  ySize.push(68);
-  objects++;
-  setupInterval();
-  setupKeydownEvent();
-  document.getElementById("object-0").focus();
+    xArray.push(50);
+    yArray.push(window.innerHeight - 200);
+    vxArray.push(0);
+    vyArray.push(0);
+    xSize.push(10);
+    ySize.push(10);
+    objects++;
+    setupInterval();
+    setupKeydownEvent();
+    setupCollMap();
+    document.getElementById("object-0").focus();
 };
