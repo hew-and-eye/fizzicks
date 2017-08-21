@@ -21,11 +21,21 @@ body {
 #object-1 {
     left: 100px;
     position: fixed;
-    top: calc(100vh - 68px);
+    top: calc(100vh - 100px);
     outline: none;
-    height: 10px;
-    width: 10px;
-    background-color: aqua;
+    height: 100px;
+    width: 100px;
+    background-color: red;
+}
+
+#object-2 {
+  left: 200px;
+  position: fixed;
+  top: calc(100vh - 500px);
+  outline: none;
+  height: 200px;
+  width: 50px;
+  background-color: red;
 }
 
 [fz-box] {
